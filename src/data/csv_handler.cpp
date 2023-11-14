@@ -19,8 +19,6 @@ void CSV_Handler::read_csv(std::string path){
    }
 
    std::string line;
-   int rows = 0;
-   int cols = -1;
    // col names
    std::getline(file, line); 
    std::stringstream ss(line);
@@ -29,26 +27,24 @@ void CSV_Handler::read_csv(std::string path){
       column_names.push_back(cell);
    }
    // features
+   std::vector<std::vector<double>> columns(column_names.size());
    while (std::getline(file, line)) {
       std::stringstream ss(line);
-      std::vector<double> cells;
       std::string cell;
+      int col = 0;
       while (std::getline(ss, cell, ',')) {
-         cells.push_back(std::stod(cell));
+         if (col >= column_names.size()) {
+            std::cerr << "Row has more columns than the header row." << std::endl;
+            exit(1);
+         }
+         columns[col].push_back(std::stod(cell));
+         col++;
       }
-      if (cols == -1) {
-         cols = cells.size();
-      }
-      else if (cells.size() != cols) {
-         std::cerr << "Row " << rows << " has " << cells.size() << " columns, but the first row has " << cols << " columns." << std::endl;
-         exit(1);
-      }
-      data.push_back(cells);
-      rows++;
    }
    file.close();
-   shape[0] = rows;
-   shape[1] = cols;
+   data = columns;
+   shape[0] = data.size();
+   shape[1] = data[0].size();
    std::cout << "Successfully read csv." << std::endl;
 }
 
@@ -74,39 +70,39 @@ std::array<int, 2> CSV_Handler::get_shape(){
 }
 
 
-void CSV_Handler::head(int n){
-   if(n > data.size()){
-      n = data.size(); 
+void CSV_Handler::head(int n, int max_cols){
+   if(n > data[0].size()){
+      n = data[0].size(); 
    }
-   int features = data[0].size();
 
    // column names
-   for (int i = 0; i < std::min(4, (int)column_names.size()); i++) {
-      std::cout << std::setw(8) << column_names[i] << "; ";
-   }
-   if (column_names.size() > 8) {
-      std::cout << " ... ";
-      for (int i = column_names.size() - 4; i < column_names.size(); i++) {
+   if(data.size() <= max_cols) {
+      for (int i = 0; i < data.size(); i++) {
          std::cout << std::setw(8) << column_names[i] << "; ";
       }
-   } else if (column_names.size() > 4) {
-      for (int i = 4; i < column_names.size(); i++) {
+   } else {
+      for (int i = 0; i < 4; i++) {
+         std::cout << std::setw(8) << column_names[i] << "; ";
+      }
+      std::cout << " ... ";
+      for (int i = data.size() - 4; i < data.size(); i++) {
          std::cout << std::setw(8) << column_names[i] << "; ";
       }
    }
    std::cout << std::endl;
+   
    // values
-   for (int i = 0; i < n; i++) {
-      for (int j = 0; j < std::min(4, (int)data[i].size()); j++) {
-         std::cout << std::setw(6) << data[i][j] << "   ";
-      }
-      if (data[i].size() > 8) {
-         std::cout << " ... ";
-         for (int j = data[i].size() - 4; j < data[i].size(); j++) {
+   for (int j = 0; j < n; j++) {
+      if(data.size() <= max_cols) {
+         for (int i = 0; i < data.size(); i++) {
             std::cout << std::setw(6) << data[i][j] << "   ";
          }
-      } else if (data[i].size() > 4) {
-         for (int j = 4; j < data[i].size(); j++) {
+      } else {
+         for (int i = 0; i < 4; i++) {
+            std::cout << std::setw(6) << data[i][j] << "   ";
+         }
+         std::cout << " ... ";
+         for (int i = data.size() - 4; i < data.size(); i++) {
             std::cout << std::setw(6) << data[i][j] << "   ";
          }
       }
@@ -114,6 +110,7 @@ void CSV_Handler::head(int n){
    }
    std::cout << "CSV of " <<"shape (" << shape[0] << ", " << shape[1]<<")" << std::endl << std::endl;
 }
+
 
 
 void CSV_Handler::delete_row(int index){
@@ -132,27 +129,54 @@ std::vector<std::vector<double>> CSV_Handler::get_data(){
 }
 
 
+std::vector<std::vector<double>> CSV_Handler::get_slice(int col_st, int col_end, int row_st, int row_end){
+   if (col_st < 0) col_st = data.size() + col_st;
+   if (col_end < 0) col_end = data.size() + col_end;
+   if (row_st < 0) row_st = data[0].size() + row_st;
+   if (row_end < 0) row_end = data[0].size() + row_end;
+
+   std::vector<std::vector<double>> slice;
+
+   for (int i = col_st; i < col_end; i++){
+      std::vector<double> column_slice(data[i].begin() + row_st, data[i].begin() + row_end);
+      slice.push_back(column_slice);
+   }
+   return slice;
+}
+
+
 std::vector<std::string> CSV_Handler::get_columns_names(){
    return column_names;
 }
 
-std::vector<std::vector<double>> CSV_Handler::get_columns_values(int start, int end){
-   if(end <= start || end > data.size() || start < 0){
-      std::cout << "Invalid start: " << start << " or end: " << end << " argument, for data shape of: (" << 
-      shape[0] << ", " << shape[1] << ")" << std::endl;
-   }
 
-   std::vector<int> column_idexes(end-start);
-   std::iota(column_idexes.begin(), column_idexes.end(), start);
-
-   std::vector<std::vector<double>> columns(data.size() , std::vector<double>(column_idexes.size()));
-   for(int i = 0; i < data.size(); i++){
-      for(int j = 0; j < column_idexes.size(); j++){
-         columns[i][j] = data[i][column_idexes[j]];
+void CSV_Handler::create_dummy(int column_index){
+   std::vector<double> column = data[column_index];
+   std::set<double> categories(column.begin(), column.end());
+   
+   for(auto& category : categories){
+      std::vector<double> dummy_column;
+      for(auto& value : column){
+         if(value == category)
+            dummy_column.push_back(1.0);
+         else
+            dummy_column.push_back(0.0);
       }
+      data.push_back(dummy_column);
+      column_names.push_back(std::to_string(category) + "_" + column_names[column_index]);
    }
-   return columns;
-} 
+   data.erase(data.begin() + column_index);
+   column_names.erase(column_names.begin() + column_index);
+}
+
+
+void CSV_Handler::unique(){
+   std::cout << "Number of unique values per column:\n";
+   for (int i = 0; i < data.size(); i++) {
+      std::set<double> unique_values(data[i].begin(), data[i].end());
+      std::cout << std::setw(8) << column_names[i] << ": " << unique_values.size() << "\n";
+   }
+}
 
 
 void CSV_Handler::clear(){

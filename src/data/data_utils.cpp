@@ -11,11 +11,11 @@ std::array<CSV_Handler, 2> split_data(CSV_Handler dataset, float val_size){
    }
    std::vector<std::vector<double>> dataset_values = dataset.get_data();
 
-   std::vector<std::vector<double>> train_values;
-   std::vector<std::vector<double>> validation_values;
+   std::vector<std::vector<double>> train_values(dataset_values.size());
+   std::vector<std::vector<double>> validation_values(dataset_values.size());
    std::array<CSV_Handler, 2> splited_datasets; // {train, val}
-   int train_split_size = static_cast<int>(dataset.get_shape()[0] * (1.0 - val_size));
-   std::vector<int> indices(dataset.get_shape()[0]);
+   int train_split_size = static_cast<int>(dataset.get_shape()[1] * (1.0 - val_size));
+   std::vector<int> indices(dataset.get_shape()[1]);
 
    // create and shuffle indices
    std::iota(indices.begin(), indices.end(), 0);
@@ -24,10 +24,14 @@ std::array<CSV_Handler, 2> split_data(CSV_Handler dataset, float val_size){
    std::shuffle(indices.begin(), indices.end(), g);
    // split the dataset
    for (int i = 0; i < train_split_size; ++i) {
-      train_values.push_back(dataset_values[indices[i]]);
+      for (int j = 0; j < dataset_values.size(); ++j) {
+         train_values[j].push_back(dataset_values[j][indices[i]]);
+      }
    }
    for (int i = train_split_size; i < indices.size(); ++i) {
-      validation_values.push_back(dataset_values[indices[i]]);
+      for (int j = 0; j < dataset_values.size(); ++j) {
+         validation_values[j].push_back(dataset_values[j][indices[i]]);
+      }
    }
 
    splited_datasets[0].from_array(train_values, dataset.get_columns_names());
@@ -39,15 +43,15 @@ std::array<CSV_Handler, 2> split_data(CSV_Handler dataset, float val_size){
 Eigen::MatrixXd vector_to_matrix(std::vector<std::vector<double>> array){
    for (size_t i = 1; i < array.size(); ++i) {
       if (array[i].size() != array[0].size()) {
-         std::cerr << "Row " << i << " has " << array[i].size() << " columns, but the first row has " << array[0].size() << " columns.\n";
+         std::cerr << "Column " << i << " has " << array[i].size() << " rows, but the first column has " << array[0].size() << " rows.\n";
          exit(1);
       }
    }
 
-   Eigen::MatrixXd mat(array.size(), array[0].size());
+   Eigen::MatrixXd mat(array[0].size(), array.size());
 
    for (int i = 0; i < array.size(); i++) {
-      mat.row(i) = Eigen::VectorXd::Map(&array[i][0], array[0].size());
+      mat.col(i) = Eigen::VectorXd::Map(&array[i][0], array[i].size());
    }
    return mat;
 }

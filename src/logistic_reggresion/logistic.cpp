@@ -1,15 +1,15 @@
-#include "linear.h"
+#include "logistic.h"
 
 
-LinearReggresion::LinearReggresion(double lr): n_features(), weights(), bias(){
-   learning_rate = lr;
+LogisticReggresion::LogisticReggresion(double lr): n_features(), weights(), bias(){
+    learning_rate = lr;
 }
 
 
-LinearReggresion::~LinearReggresion(){
+LogisticReggresion::~LogisticReggresion(){
 }
 
-void LinearReggresion::fit(Eigen::MatrixXd X, Eigen::MatrixXd y, int epochs) {
+void LogisticReggresion::fit(Eigen::MatrixXd X, Eigen::MatrixXd y, int epochs) {
    double loss = 0;
 
    weights = 0.01 * Eigen::MatrixXd::Random(X.cols(), y.cols());
@@ -34,7 +34,7 @@ void LinearReggresion::fit(Eigen::MatrixXd X, Eigen::MatrixXd y, int epochs) {
 }
 
 
-Eigen::MatrixXd LinearReggresion::predict(Eigen::MatrixXd X){
+Eigen::MatrixXd LogisticReggresion::predict(Eigen::MatrixXd X){
    Eigen::MatrixXd predictions = X * weights;
    predictions.rowwise() += bias.transpose();
    return predictions;
