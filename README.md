@@ -15,17 +15,18 @@ Please ensure that all data is preprocessed into numeric form before use (especi
 The src folder contains the following implementations: 
 - Supervised Learning
    - Classification
-      1. Logistic Regression
-      2. K-Nearest Neighbors (KNN)
-      3. Naive Bayes
+      - Logistic Regression
+      - K-Nearest Neighbors (KNN)
+      - Naive Bayes
    - Regression:
-      1. Linear Regression
+      - Linear Regression
+
 - Unsupervised Learning
-   1. Principal Component Analysis (PCA)
-   2. K-Means Clustering (K-Mean)
+   - Principal Component Analysis (PCA)
+   - K-Means Clustering (K-Mean)
 - Data Handling
-   1. data_utils (additional tools for training algorithms)
-   2. dataframe (DataFrame class which has basic methods to load and preprocess the data.)
+   - data_utils (additional tools for training algorithms)
+   - dataframe (DataFrame class which has basic methods to load and preprocess the data.)
 
 Each algorithm is described in its own folder.
 
