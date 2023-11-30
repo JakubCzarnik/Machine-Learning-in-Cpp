@@ -20,16 +20,15 @@ void LinearReggresion::fit(Eigen::MatrixXd X, Eigen::MatrixXd y, int epochs) {
       Eigen::MatrixXd predictions = X * weights;
       predictions.rowwise() += bias.transpose();
 
-      Eigen::MatrixXd residuals = y - predictions;
-      Eigen::MatrixXd squared_residuals = residuals.array().square();
+      Eigen::MatrixXd error = y - predictions;
+
       // d_loss/d_w
-      Eigen::MatrixXd gradients_weights = -2.0 / X.rows() * X.transpose() * residuals;
+      Eigen::MatrixXd gradients_weights = -2.0 / X.rows() * X.transpose() * error; // mse derivative 
       // d_loss/d_b
-      Eigen::VectorXd gradients_bias = -2.0 / X.rows() * residuals.colwise().sum();
+      Eigen::VectorXd gradients_bias = -2.0 / X.rows() * error.colwise().sum();
       // SGD
       weights -= learning_rate * gradients_weights;
       bias -= learning_rate * gradients_bias;
-
    }
 }
 

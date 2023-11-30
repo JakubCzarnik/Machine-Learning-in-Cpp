@@ -1,6 +1,5 @@
 #include "knn.h"
 
-// DistIndex
 DistIndex::DistIndex(){
 }
 
@@ -13,7 +12,6 @@ bool DistIndex::operator<(const DistIndex& other) const{
    return dist < other.dist;
 }
 
-// KNeighborsClassifier
 
 
 KNeighborsClassifier::KNeighborsClassifier(int k ): k(k){
@@ -24,19 +22,18 @@ KNeighborsClassifier::~KNeighborsClassifier(){
 }
 
 
-void KNeighborsClassifier::fit(Eigen::MatrixXd X, Eigen::MatrixXd y){
-   assert(y.cols()==1); 
+void KNeighborsClassifier::fit(Eigen::MatrixXd X, Eigen::VectorXd y){
    X_train = X;
    y_train = y;
 }
 
-Eigen::MatrixXd KNeighborsClassifier::predict(Eigen::MatrixXd X){
-   Eigen::MatrixXd y_pred(X.rows(), 1);
+Eigen::VectorXd KNeighborsClassifier::predict(Eigen::MatrixXd X){
+   Eigen::VectorXd y_pred(X.rows());
 
-   for(int i = 0; i < X.rows(); ++i){ // every test/val row with every train row
+   for(int i = 0; i < X.rows(); i++){ // every test/val row with every train row
       std::priority_queue<DistIndex> pq;
       
-      for(int j = 0; j < X_train.rows(); ++j){
+      for(int j = 0; j < X_train.rows(); j++){
          // to reach the minimum heap, we use the trick with opposite values
          double dist = -(X.row(i) - X_train.row(j)).norm(); 
          DistIndex di;
@@ -52,7 +49,7 @@ Eigen::MatrixXd KNeighborsClassifier::predict(Eigen::MatrixXd X){
       // count "votes"
       std::unordered_map<double, int> counts;
       while(!pq.empty()) {
-         counts[y_train(pq.top().index, 0)]++;
+         counts[y_train(pq.top().index)]++;
          pq.pop();
       }
       // choose the class with the most "votes"
@@ -64,7 +61,7 @@ Eigen::MatrixXd KNeighborsClassifier::predict(Eigen::MatrixXd X){
             pred_class = pair.first;
          }
       }
-      y_pred(i, 0) = pred_class;
+      y_pred(i) = pred_class;
    }
    return y_pred;
 }

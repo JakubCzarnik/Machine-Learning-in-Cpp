@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <Eigen/Dense>
-#include <iostream>
 
 class LogisticReggresion{
    int n_features;
@@ -12,7 +11,7 @@ class LogisticReggresion{
    Eigen::VectorXd bias;
    
 public:
-   LogisticReggresion(double lr = 0.01);
+   LogisticReggresion(double lr = 0.01); // using Gradient Descent 
    ~LogisticReggresion();
 
    void fit(Eigen::MatrixXd X, Eigen::MatrixXd y, int epochs=500);
