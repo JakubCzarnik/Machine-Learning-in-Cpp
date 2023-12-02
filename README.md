@@ -12,21 +12,21 @@ This repository contains implementations of basic machine learning algorithms wr
 Please ensure that all data is preprocessed into numeric form before use (especially for Iris species), that the Eigen library is installed, and that the path in the CMakeLists is correctly set to the Eigen library location.
 
 ## Algorithms
-The src folder contains the following implementations: 
+The [src](src/) folder contains the following implementations: 
 - Supervised Learning
    - Classification
-      - Logistic Regression
-      - K-Nearest Neighbors (KNN)
-      - Naive Bayes
+      - [Logistic Regression](src/logistic_reggresion/)
+      - [K-Nearest Neighbors (KNN)](src/knn/)
+      - [Naive Bayes](src/naive)
    - Regression:
-      - Linear Regression
+      - [Linear Regression](src/linear_reggresion/)
 
 - Unsupervised Learning
-   - Principal Component Analysis (PCA)
-   - K-Means Clustering (K-Mean)
+   - [Principal Component Analysis (PCA)](src/pca/)
+   - [K-Means Clustering (K-Mean)](src/kmean/)
 - Data Handling
-   - data_utils (additional tools for training algorithms)
-   - dataframe (DataFrame class which has basic methods to load and preprocess the data.)
+   - [data_utils](src/data/) (additional tools for training algorithms)
+   - [ dataframe](src/data/) (DataFrame class which has basic methods to load and preprocess the data.)
 
 Each algorithm is described in its own folder.
 
