@@ -16,14 +16,14 @@ The [src](src/) folder contains the following implementations:
 - Supervised Learning
    - Classification
       - [Logistic Regression](src/logistic_reggresion/)
-      - [K-Nearest Neighbors (KNN)](src/knn/)
+      - [K-Nearest Neighbors](src/knn/) (KNN)
       - [Naive Bayes](src/naive)
    - Regression:
       - [Linear Regression](src/linear_reggresion/)
 
 - Unsupervised Learning
-   - [Principal Component Analysis (PCA)](src/pca/)
-   - [K-Means Clustering (K-Mean)](src/kmean/)
+   - [Principal Component Analysis](src/pca/) (PCA)
+   - [K-Means Clustering](src/kmean/) (K-Mean)
 - Data Handling
    - [data_utils](src/data/) (additional tools for training algorithms)
    - [ dataframe](src/data/) (DataFrame class which has basic methods to load and preprocess the data.)
